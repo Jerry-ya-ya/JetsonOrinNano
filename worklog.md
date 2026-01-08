@@ -4,4 +4,6 @@
 
 - Connect project to remote Git repository.
 
-- Summarize the hardware required for upgrading Jetson.
+- Chapter: Summarize the hardware required for upgrading Jetson.
+
+- Chapter: Disk Partitioning.
