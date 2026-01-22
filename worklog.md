@@ -4,6 +4,14 @@
 
 - Connect project to remote Git repository.
 
-- Chapter: Summarize the hardware required for upgrading Jetson.
+- Add chapter: Summarize the hardware required for upgrading Jetson.
 
-- Chapter: Disk Partitioning.
+- Add chapter: Disk Partitioning.
+
+- Implemented the creation of the table of contents.
+
+## 2026/01/22 ##
+
+- Add chapter: Dual Boot Setup – Installing Ubuntu alongside Windows.
+
+- Update image filenames
