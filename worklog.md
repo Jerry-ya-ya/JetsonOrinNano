@@ -1,6 +1,6 @@
-# Nvidia Jetson Orin Nano #
+# Nvidia Jetson Orin Nano
 
-## 2026/01/07 ##
+## 2026/01/07
 
 - Connect project to remote Git repository.
 
@@ -10,8 +10,12 @@
 
 - Implemented the creation of the table of contents.
 
-## 2026/01/22 ##
+## 2026/01/22
 
 - Add chapter: Dual Boot Setup – Installing Ubuntu alongside Windows.
 
-- Update image filenames
+- Update image filenames.
+
+## 2026/01/28
+
+- Add chapter: Upgrade jetson orin nano to maxn super.
