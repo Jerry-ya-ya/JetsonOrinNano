@@ -13,8 +13,9 @@
 - [頁首](#nvidia-jetson-orin-nano)
 - [致謝](#致謝)
 - [第一章-系統主機安裝準備](#linux-系統主機安裝準備)
-- [第二章-安裝linux-系統](#安裝-Linux-系統)
-- [第三章-升級-Jetson-Orin-Nano](#升級-Jetson-Orin-Nano)
+- [第二章-安裝 linux 系統](#安裝-Linux系統)
+- [第三章-升級 Jetson Orin Nano](#升級-JetsonOrinNano)
+- [第四章-使用 ssh 連接 jetson 並傳輸資料](#使用-ssh-連接-jetson-並傳輸資料)
 
 ## Linux 系統主機安裝準備
 
@@ -79,7 +80,7 @@
 
 ![選擇下載檔案](./Img/Ubuntu/find_iso_download.png)
 
-下載後在存放的地方可以找到剛剛所下載的 ubuntu-22.04.5-desktop-amd64.iso (應該是CD icon )
+下載後在存放的地方可以找到剛剛所下載的 ubuntu-22.04.5-desktop-amd64.iso (應該是 CD icon )
 
 ![檢查下載檔案](./Img/Ubuntu/iso.png)
 
@@ -196,7 +197,7 @@
 - 螢幕 (Dp 孔，HDMI 須轉接) \* 1
 - Linux 系統主機 \* 1
 
-首先我們看到Jetson Orin Nano Developer kit
+首先我們看到 Jetson Orin Nano Developer kit
 
 ![箱子](img/Jetson/box.png)
 
@@ -224,7 +225,7 @@
 
 然後我們翻轉到背面
 
-可以看到風扇的底板下面有12支針腳
+可以看到風扇的底板下面有 12 支針腳
 
 ![針腳](img/Jetson/pins.png)
 
@@ -288,7 +289,7 @@ sudo apt upgrade -y
 sudo apt install -y git curl wget build-essential
 ```
 
-然後透過終端安裝SDK manager
+然後透過終端安裝 SDK manager
 
 我們先透過 cd 指令
 
@@ -379,7 +380,7 @@ IP 不用填
 
 回到板子的螢幕上
 
-在桌面右上角找到模式選擇欄 (預設應該是15W )
+在桌面右上角找到模式選擇欄 (預設應該是 15W )
 
 ![模式選擇欄](img/Jetson/mode.png)
 
@@ -394,3 +395,113 @@ IP 不用填
 我們就完成升級了
 
 ![SUPER模式](img/Jetson/mode_super.png)
+
+## 使用 ssh 連接 jetson 並傳輸資料
+
+要讓其他機器連上板子我們需要先知道板子的 ip
+
+打開板子的終端機輸入
+
+```bash
+ip a
+```
+
+在圖中標為黃色方框的地方找到 ip
+
+也就是 inet 192... 那一串
+
+![ipa找ip](img/ssh/findip_ipa.png)
+
+或者用更好找的方式
+
+```bash
+ifconfig
+```
+
+![ifconfig找ip](img/ssh/findip_ifconfig.png)
+
+找到 wlan0 或者 wlP1p1s0
+
+前者為連接網路線後者為使用無線網路介面卡
+
+一樣是黃色方框
+
+![ifconfig找ip](img/ssh/findip_ifconfig_wlan.png)
+
+找到板子的 ip 後我們要使用 ssh 建立連線
+
+檢查是否安裝 ssh 跟其版本
+
+```bash
+ssh -V
+```
+
+如果尚未安裝
+
+```bash
+sudo apt update
+```
+
+```bash
+sudo apt install openssh-client
+```
+
+在 windows 或者其他系統打開 終端機
+
+基本使用格式
+
+: ssh 使用者名稱@目標 IP 位址
+
+例如
+
+: ssh jetson@192...
+
+輸入連線指令後會要求你輸入被連線端的密碼
+
+如果輸入錯誤密碼會像下圖中第一次的回覆一樣
+
+: Permission denied, please try again.
+
+成功登入終端機提示字元會變為遠端主機名稱
+
+![ssh連線](img/ssh/ssh_connection.png)
+
+成功連接之後就是要進行資料的傳輸了
+
+市面上有很多有 gui 的資料傳輸軟體
+
+這邊先以 scp 的方式進行示範
+
+scp（Secure Copy）為基於 SSH 協定之檔案傳輸工具
+
+可在兩台裝置之間安全地複製檔案
+
+當系統已安裝並可使用 SSH 時
+
+通常即可直接使用 scp 進行檔案傳輸
+
+無需額外設定
+
+基本使用格式
+
+順向
+
+: scp 本機檔案 使用者@遠端 IP:目標路徑
+
+逆向
+
+: scp 使用者@遠端 IP:遠端檔案 本機路徑
+
+例如: scp -r jack@192...:/home/jack/Pictures/Screenshots .
+
+這邊的 -r 是遞迴複製 (recursive)
+
+用途是複製「整個資料夾」
+
+傳輸時會幫你列出各項數據
+
+![scp傳輸](img/ssh/scp.png)
+
+如果終端機上面的都跑到 100%
+
+在目標端可以看到被傳輸的檔案就說明傳輸完成了

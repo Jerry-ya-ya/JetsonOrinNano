@@ -19,3 +19,7 @@
 ## 2026/01/28
 
 - Add chapter: Upgrade jetson orin nano to maxn super.
+
+## 2026/02/02
+
+- Add chapter: Use ssh to connect to devices and scp to transfer data.
