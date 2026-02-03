@@ -199,15 +199,15 @@
 
 首先我們看到 Jetson Orin Nano Developer kit
 
-![箱子](img/Jetson/box.png)
+![箱子](Img/Jetson/box.png)
 
 打開這個箱子
 
-![打開箱子](img/Jetson/box_opened.png)
+![打開箱子](Img/Jetson/box_opened.png)
 
 把內容物取出，應該會有一個板子、一個電源供應器、兩條規格不同的電源線(臺規、歐規)、跟一本說明書
 
-![部件](img/Jetson/component.png)
+![部件](Img/Jetson/component.png)
 
 留下一條適合的電源線、板子跟、電源供應器
 
@@ -221,27 +221,27 @@
 - RJ-45 網路連接埠
 - USB Type-C 連接埠
 
-![連接埠](img/Jetson/ports.png)
+![連接埠](Img/Jetson/ports.png)
 
 然後我們翻轉到背面
 
 可以看到風扇的底板下面有 12 支針腳
 
-![針腳](img/Jetson/pins.png)
+![針腳](Img/Jetson/pins.png)
 
 放大來看
 
-![放大針腳](img/Jetson/pins_zoomed.png)
+![放大針腳](Img/Jetson/pins_zoomed.png)
 
 我們需要利用跳線帽 (jumper)
 
-![跳線帽](img/Jetson/jumper.png)
+![跳線帽](Img/Jetson/jumper.png)
 
 把 Pin9, Pin10 (FC REC, GND) 連接起來 (右邊留兩支針腳)
 
 這樣才可以進入 Recovery 模式
 
-![短接](img/Jetson/pins_jumped.png)
+![短接](Img/Jetson/pins_jumped.png)
 
 接著把一條 USB Type-C 接上 USB Type-C 連接埠跟 Linux 主機
 
@@ -253,7 +253,7 @@
 
 最後把電源接上
 
-![接線](img/Jetson/wired.png)
+![接線](Img/Jetson/wired.png)
 
 回到 Linux 主機上
 
@@ -263,15 +263,15 @@
 
 - https://developer.nvidia.com/sdk-manager
 
-![SDK網頁](img/Jetson/SDK_webpage.png)
+![SDK網頁](Img/Jetson/SDK_webpage.png)
 
 點擊 .deb (x86_64) 下載 (需先登入)
 
-![SDK下載](img/Jetson/SDK_Ubuntu.png)
+![SDK下載](Img/Jetson/SDK_Ubuntu.png)
 
 下載好 .deb 檔：sdkmanager_1.9.3-\*.deb (版本可能更新) 在 download 資料夾裡面找到它
 
-![Deb](img/Jetson/deb.png)
+![Deb](Img/Jetson/deb.png)
 
 接著按下 ctrl + alt + t 打開終端 (或者桌面右鍵打開)
 
@@ -319,15 +319,15 @@ sdkmanager
 
 應該會出現下面的視窗畫面
 
-![SDK GUI](img/Jetson/SDK_GUI.png)
+![SDK GUI](Img/Jetson/SDK_GUI.png)
 
 如果 type-c 接上了主機卻沒有偵測到可以重啟一下板子
 
-![目標未偵測](img/Jetson/SDK_detect_not.png)
+![目標未偵測](Img/Jetson/SDK_detect_not.png)
 
 確認主機偵測到板子就可以操作 SDK manager GUI 了
 
-![目標偵測](img/Jetson/SDK_detect.png)
+![目標偵測](Img/Jetson/SDK_detect.png)
 
 把 Host machine 選項關掉、安裝最新的 SDK Version、
 順便把下面兩個選擇安裝的也一起裝好
@@ -336,7 +336,7 @@ sdkmanager
 
 下面的 CONTINUE 亮起就可以點擊
 
-![目標偵測](img/Jetson/SDK_select.png)
+![目標偵測](Img/Jetson/SDK_select.png)
 
 接著會到第二步
 
@@ -346,11 +346,11 @@ sdkmanager
 
 把所有選項都勾好再把下面左手邊的 同意規則跟協議 (I accept the terms and conditions of the license agreements) 勾好就可以進行下一步
 
-![第二步](img/Jetson/SDK_step2.png)
+![第二步](Img/Jetson/SDK_step2.png)
 
 第三步就是 SDK manager 開始透過 Linux 主機幫板子安裝 OS
 
-![第三步](img/Jetson/SDK_step3.png)
+![第三步](Img/Jetson/SDK_step3.png)
 
 你應該會看到在板子所外接的螢幕上開始出現一些畫面
 
@@ -368,7 +368,7 @@ IP 不用填
 
 然後把剛剛在板子設定好的使用者跟密碼輸入進去
 
-![SDK詢問](img/Jetson/SDK_asking.png)
+![SDK詢問](Img/Jetson/SDK_asking.png)
 
 輸入好按下 Install 就可以等待主機幫我們安裝完成
 
@@ -382,7 +382,7 @@ IP 不用填
 
 在桌面右上角找到模式選擇欄 (預設應該是 15W )
 
-![模式選擇欄](img/Jetson/mode.png)
+![模式選擇欄](Img/Jetson/mode.png)
 
 點開之後選擇 MAXN SUPER
 
@@ -394,7 +394,7 @@ IP 不用填
 
 我們就完成升級了
 
-![SUPER模式](img/Jetson/mode_super.png)
+![SUPER模式](Img/Jetson/mode_super.png)
 
 ## 使用 ssh 連接 jetson 並傳輸資料
 
@@ -410,7 +410,7 @@ ip a
 
 也就是 inet 192... 那一串
 
-![ipa找ip](img/ssh/findip_ipa.png)
+![ipa找ip](Img/ssh/findip_ipa.png)
 
 或者用更好找的方式
 
@@ -418,7 +418,7 @@ ip a
 ifconfig
 ```
 
-![ifconfig找ip](img/ssh/findip_ifconfig.png)
+![ifconfig找ip](Img/ssh/findip_ifconfig.png)
 
 找到 wlan0 或者 wlP1p1s0
 
@@ -426,7 +426,7 @@ ifconfig
 
 一樣是黃色方框
 
-![ifconfig找ip](img/ssh/findip_ifconfig_wlan.png)
+![ifconfig找ip](Img/ssh/findip_ifconfig_wlan.png)
 
 找到板子的 ip 後我們要使用 ssh 建立連線
 
@@ -464,7 +464,7 @@ sudo apt install openssh-client
 
 成功登入終端機提示字元會變為遠端主機名稱
 
-![ssh連線](img/ssh/ssh_connection.png)
+![ssh連線](Img/ssh/ssh_connection.png)
 
 成功連接之後就是要進行資料的傳輸了
 
@@ -500,7 +500,7 @@ scp（Secure Copy）為基於 SSH 協定之檔案傳輸工具
 
 傳輸時會幫你列出各項數據
 
-![scp傳輸](img/ssh/scp.png)
+![scp傳輸](Img/ssh/scp.png)
 
 如果終端機上面的都跑到 100%
 

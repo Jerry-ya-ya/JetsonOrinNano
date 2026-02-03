@@ -23,3 +23,5 @@
 ## 2026/02/02
 
 - Add chapter: Use ssh to connect to devices and scp to transfer data.
+
+- Fixed an issue where images failed to display on GitHub due to incorrect capitalization in image URLs.
