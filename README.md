@@ -15,7 +15,8 @@
 - [第一章-系統主機安裝準備](#linux-系統主機安裝準備)
 - [第二章-安裝 linux 系統](#安裝-Linux系統)
 - [第三章-升級 Jetson Orin Nano](#升級-JetsonOrinNano)
-- [第四章-使用 ssh 連接 jetson 並傳輸資料](#使用-ssh-連接-jetson-並傳輸資料)
+- [第四章-使用 ssh 並傳輸資料](#使用-ssh-並傳輸資料)
+- [第五章-安裝並使用 Jetson Stats (jtop)](<#安裝並使用-Jetson-Stats-(jtop)>)
 
 ## Linux 系統主機安裝準備
 
@@ -396,7 +397,7 @@ IP 不用填
 
 ![SUPER模式](Img/Jetson/mode_super.png)
 
-## 使用 ssh 連接 jetson 並傳輸資料
+## 使用 ssh 並傳輸資料
 
 要讓其他機器連上板子我們需要先知道板子的 ip
 
@@ -505,3 +506,129 @@ scp（Secure Copy）為基於 SSH 協定之檔案傳輸工具
 如果終端機上面的都跑到 100%
 
 在目標端可以看到被傳輸的檔案就說明傳輸完成了
+
+## 安裝並使用 Jetson Stats (jtop)
+
+Jetson Stats (jtop) 是用於即時監控 Jetson 裝置系統狀態的工具
+
+可查看 CPU、GPU、記憶體、溫度、功耗與電源模式
+
+並協助使用者掌握系統負載與效能狀況
+
+在安裝之前先檢查系統更新
+
+```bash
+sudo apt update
+```
+
+![檢查更新](Img/jtop/check_update.png)
+
+檢查完我們要先安裝 python 中的 pip 套件才能透過它安裝 jtop
+
+```bash
+sudo apt install -y python3-pip
+```
+
+![安裝pip](Img/jtop/install_pip.png)
+
+記得在每次安裝過東西後都要確認是否安裝好跟其版本
+
+先檢查板子上所安裝的 Python
+
+```bash
+python3 --version
+```
+
+接著透過 pip 檢查自身的版本
+
+```bash
+pip3 --version
+```
+
+![檢查pip](Img/jtop/pip_check.png)
+
+如果都有看到兩者的版本
+
+那我們就可以安裝 jtop 了
+
+```bash
+sudo pip3 install jetson-stats
+```
+
+執行完安裝指令後可以試試看打不打的開
+
+```bash
+jtop
+```
+
+如果跟圖中一樣 I can't access jtop.service.
+
+請 reboot 一次板子
+
+reboot 指令用於重新啟動系統
+
+使作業系統重新載入並套用最新設定或更新
+
+```bash
+reboot
+```
+
+![檢查pip](Img/jtop/install_jtop.png)
+
+等待板子一段時間後重啟
+
+打開終端機叫出 jtop
+
+```bash
+jtop
+```
+
+輸入後終端會切換成 jtop gui 畫面
+
+剛打開 jtop 的頁面是 ALL 頁面
+
+提供 Jetson 系統的即時總覽資訊
+
+包含 CPU、GPU、記憶體、溫度、功耗、風扇與執行中行程
+
+適合用於效能監控與系統狀態檢查
+
+![jtop all 頁面](Img/jtop/jtop_1all.png)
+
+GPU 頁面顯示 GPU 使用率、時脈與記憶體占用情況
+
+用於確認 GPU 是否正常運作及是否被應用程式使用
+
+![jtop gpu 頁面](Img/jtop/jtop_2gpu.png)
+
+CPU 頁面顯示各 CPU 核心的使用率與時脈狀態
+
+用於觀察系統負載分布與是否發生效能瓶頸
+
+![jtop cpu 頁面](Img/jtop/jtop_3cpu.png)
+
+mem 頁面顯示系統記憶體與交換空間 (Swap) 的使用狀況
+
+用於檢查記憶體是否充足
+
+![jtop mem 頁面](Img/jtop/jtop_4mem.png)
+
+eng 頁面顯示各硬體加速引擎 (如編碼、解碼與影像處理) 的使用狀態
+
+用於確認硬體加速是否啟用
+
+![jtop eng 頁面](Img/jtop/jtop_5eng.png)
+
+ctrl 頁面提供電源模式、時脈與風扇等系統控制選項
+
+用於調整效能與功耗設定
+
+![jtop ctrl 頁面](Img/jtop/jtop_6ctrl.png)
+
+info 頁面顯示 Jetson 裝置與系統的基本資訊與版本資訊
+
+用於確認硬體與軟體環境
+
+![jtop info 頁面](Img/jtop/jtop_7info.png)
+
+使用完畢就點擊 Quit 就會關閉 jtop
