@@ -27,3 +27,5 @@
 - Fixed an issue where images failed to display on GitHub due to incorrect capitalization in image URLs.
 
 - Add chapter: Installing and Using jtop.
+
+- Add chapter: Installing and Testing the Webcam.

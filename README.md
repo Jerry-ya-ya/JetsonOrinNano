@@ -13,10 +13,11 @@
 - [頁首](#nvidia-jetson-orin-nano)
 - [致謝](#致謝)
 - [第一章-系統主機安裝準備](#linux-系統主機安裝準備)
-- [第二章-安裝 linux 系統](#安裝-Linux系統)
-- [第三章-升級 Jetson Orin Nano](#升級-JetsonOrinNano)
+- [第二章-安裝 linux 系統](#安裝-linux-系統)
+- [第三章-升級 Jetson Orin Nano](#升級-jetson-orin-nano)
 - [第四章-使用 ssh 並傳輸資料](#使用-ssh-並傳輸資料)
-- [第五章-安裝並使用 Jetson Stats (jtop)](<#安裝並使用-Jetson-Stats-(jtop)>)
+- [第五章-安裝並使用 jtop](#安裝並使用-jtop)
+- [第六章-安裝並測試 Webcam](#安裝並測試-webcam)
 
 ## Linux 系統主機安裝準備
 
@@ -507,7 +508,7 @@ scp（Secure Copy）為基於 SSH 協定之檔案傳輸工具
 
 在目標端可以看到被傳輸的檔案就說明傳輸完成了
 
-## 安裝並使用 Jetson Stats (jtop)
+## 安裝並使用 jtop
 
 Jetson Stats (jtop) 是用於即時監控 Jetson 裝置系統狀態的工具
 
@@ -632,3 +633,59 @@ info 頁面顯示 Jetson 裝置與系統的基本資訊與版本資訊
 ![jtop info 頁面](Img/jtop/jtop_7info.png)
 
 使用完畢就點擊 Quit 就會關閉 jtop
+
+## 安裝並測試 Webcam
+
+拿出事先準備好的網路攝影機
+
+示範攝影機的型號是 Usb-a 的 Logitech C270 HD Webcam
+
+把 Usb 接上板子
+
+在板子上找到應用程式區域
+
+打開一個叫 Cheese 的程式
+
+如果可以打開並且看到影像就說明攝影機可以使用
+
+但是本次測試時是無法使用 Cheese 的
+
+所以我們改以 GStreamer 的方式測試攝影機
+
+第一步先確認板子有沒有偵測到 USB 攝影機
+
+```bash
+lsusb
+```
+
+正常情況你會看到類似：
+
+Bus 001 Device 008: ID 046d:0825 Logitech, Inc. Webcam C270
+
+第二步確認 Linux 有建立攝影機裝置節點
+
+```bash
+ls /dev/video*
+```
+
+正常情況你會看到類似：
+
+/dev/video0 /dev/video1
+
+第三步就是打開 GStreamer 了
+
+```bash
+gst-launch-1.0 v4l2src device=/dev/video0 ! videoconvert ! autovideosink
+```
+
+![打開GStreamer前](Img/GStreamer/GStreamer_open.png)
+
+輸入打開 GStreamer 的指令後會跳出一個新視窗
+
+裡面的畫面就是從攝影機輸入的
+
+![打開GStreamer中](Img/GStreamer/GStreamer_scene.png)
+
+測試完關閉彈出視窗就可以了
+
+![打開GStreamer後](Img/GStreamer/GStreamer_closed.png)
