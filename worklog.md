@@ -29,3 +29,5 @@
 - Add chapter: Installing and Using jtop.
 
 - Add chapter: Installing and Testing the Webcam.
+
+- Add practice: Image processing with OpenCV.
