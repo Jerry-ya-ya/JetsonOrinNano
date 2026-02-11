@@ -18,6 +18,7 @@
 - [第四章-使用 ssh 並傳輸資料](#使用-ssh-並傳輸資料)
 - [第五章-安裝並使用 jtop](#安裝並使用-jtop)
 - [第六章-安裝並測試 Webcam](#安裝並測試-webcam)
+- [第七章-使用 OpenCV 處理影像](#使用-opencv-處理影像)
 
 ## Linux 系統主機安裝準備
 
@@ -112,7 +113,7 @@
 
 會看到 (裝置) 的地方顯示 USB 的名稱
 
-![插入USB](./Img/Ubuntu/usb_insert.png)
+![插入 USB](./Img/Ubuntu/usb_insert.png)
 
 找到 (開機模式) 那一行右手邊的選擇按鈕
 
@@ -120,7 +121,7 @@
 
 打開成功會看到剛剛下載的 Ubuntu 版本跟藍色勾勾
 
-![選擇iso](./Img/Ubuntu/iso_choose.png)
+![選擇 iso](./Img/Ubuntu/iso_choose.png)
 
 接下來確認資料分割是 GPT
 
@@ -265,11 +266,11 @@
 
 - https://developer.nvidia.com/sdk-manager
 
-![SDK網頁](Img/Jetson/SDK_webpage.png)
+![SDK 網頁](Img/Jetson/SDK_webpage.png)
 
 點擊 .deb (x86_64) 下載 (需先登入)
 
-![SDK下載](Img/Jetson/SDK_Ubuntu.png)
+![SDK 下載](Img/Jetson/SDK_Ubuntu.png)
 
 下載好 .deb 檔：sdkmanager_1.9.3-\*.deb (版本可能更新) 在 download 資料夾裡面找到它
 
@@ -370,7 +371,7 @@ IP 不用填
 
 然後把剛剛在板子設定好的使用者跟密碼輸入進去
 
-![SDK詢問](Img/Jetson/SDK_asking.png)
+![SDK 詢問](Img/Jetson/SDK_asking.png)
 
 輸入好按下 Install 就可以等待主機幫我們安裝完成
 
@@ -396,7 +397,7 @@ IP 不用填
 
 我們就完成升級了
 
-![SUPER模式](Img/Jetson/mode_super.png)
+![SUPER 模式](Img/Jetson/mode_super.png)
 
 ## 使用 ssh 並傳輸資料
 
@@ -412,7 +413,7 @@ ip a
 
 也就是 inet 192... 那一串
 
-![ipa找ip](Img/ssh/findip_ipa.png)
+![ipa 找 ip](Img/ssh/findip_ipa.png)
 
 或者用更好找的方式
 
@@ -420,7 +421,7 @@ ip a
 ifconfig
 ```
 
-![ifconfig找ip](Img/ssh/findip_ifconfig.png)
+![ifconfig](Img/ssh/findip_ifconfig.png)
 
 找到 wlan0 或者 wlP1p1s0
 
@@ -428,7 +429,7 @@ ifconfig
 
 一樣是黃色方框
 
-![ifconfig找ip](Img/ssh/findip_ifconfig_wlan.png)
+![ifconfig 找 wlan](Img/ssh/findip_ifconfig_wlan.png)
 
 找到板子的 ip 後我們要使用 ssh 建立連線
 
@@ -466,7 +467,7 @@ sudo apt install openssh-client
 
 成功登入終端機提示字元會變為遠端主機名稱
 
-![ssh連線](Img/ssh/ssh_connection.png)
+![ssh 連線](Img/ssh/ssh_connection.png)
 
 成功連接之後就是要進行資料的傳輸了
 
@@ -502,7 +503,7 @@ scp（Secure Copy）為基於 SSH 協定之檔案傳輸工具
 
 傳輸時會幫你列出各項數據
 
-![scp傳輸](Img/ssh/scp.png)
+![scp 傳輸](Img/ssh/scp.png)
 
 如果終端機上面的都跑到 100%
 
@@ -530,7 +531,7 @@ sudo apt update
 sudo apt install -y python3-pip
 ```
 
-![安裝pip](Img/jtop/install_pip.png)
+![安裝 pip](Img/jtop/install_pip.png)
 
 記得在每次安裝過東西後都要確認是否安裝好跟其版本
 
@@ -546,7 +547,7 @@ python3 --version
 pip3 --version
 ```
 
-![檢查pip](Img/jtop/pip_check.png)
+![檢查 pip](Img/jtop/pip_check.png)
 
 如果都有看到兩者的版本
 
@@ -574,7 +575,7 @@ reboot 指令用於重新啟動系統
 reboot
 ```
 
-![檢查pip](Img/jtop/install_jtop.png)
+![檢查 pip](Img/jtop/install_jtop.png)
 
 等待板子一段時間後重啟
 
@@ -678,14 +679,258 @@ ls /dev/video*
 gst-launch-1.0 v4l2src device=/dev/video0 ! videoconvert ! autovideosink
 ```
 
-![打開GStreamer前](Img/GStreamer/GStreamer_open.png)
+![打開 GStreamer 前](Img/GStreamer/GStreamer_open.png)
 
 輸入打開 GStreamer 的指令後會跳出一個新視窗
 
 裡面的畫面就是從攝影機輸入的
 
-![打開GStreamer中](Img/GStreamer/GStreamer_scene.png)
+![打開 GStreamer 中](Img/GStreamer/GStreamer_scene.png)
 
 測試完關閉彈出視窗就可以了
 
-![打開GStreamer後](Img/GStreamer/GStreamer_closed.png)
+![打開 GStreamer 後](Img/GStreamer/GStreamer_closed.png)
+
+## 使用 OpenCV 處理影像
+
+OpenCV（Open Source Computer Vision Library）是一套廣泛使用的電腦視覺與影像處理函式庫
+
+提供完整的影像讀寫、像素運算、顏色空間轉換、幾何變換、影像濾波、特徵偵測與視訊串流等功能
+
+由於其 API 完整、社群資源豐富且跨平台支援良好
+
+OpenCV 常被用於快速建立影像處理原型與即時視覺應用
+
+本章節以 OpenCV 實作基礎影像處理流程
+
+包含灰階轉換、色彩抽取、抽色與灰階融合
+
+以及在影像上疊加文字資訊
+
+作為後續進階電腦視覺任務（例如物件偵測、追蹤與相機串流處理）的基礎
+
+打開終端機
+
+透過指令打開 jtop
+
+```bash
+jtop
+```
+
+從下面的導覽行跳到 info 頁面
+
+在 info 頁面裡面找到 OpenCV 的版本
+
+如果有看到就是 SDK manager 幫你安裝成功了
+
+![檢查 OpenCV](Img/OpenCV/check_OpenCV.png)
+
+接下來在寫程式之前我們要打開文字編輯器
+
+這邊我選擇安裝 VScode 以便更舒適的開發
+
+如果不想安裝也可以
+
+打開控制台
+
+使用 cd 指令將目標資料夾改成 download 資料夾
+
+```bash
+cd ~/Downloads
+```
+
+接下來用指令下載 arm64 版本的 VScode
+
+ARM64 版本的程式是為 ARM 架構的 64 位元處理器編譯
+
+與一般 x86 版本不同
+
+兩者指令集不相容
+
+必須依對應硬體架構使用對應版本
+
+ARM64 架構是一種 64 位元的 ARM 處理器指令架構
+
+具有低功耗與高效能特性
+
+廣泛應用於嵌入式裝置、行動裝置與邊緣運算平台
+
+wget 是一種用於從網路下載檔案的指令工具
+
+可透過 HTTP、HTTPS 或 FTP 協定將遠端資源下載至本機
+
+```bash
+wget -O vscode_arm64.deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-arm64"
+```
+
+![下載 Vscode.deb](Img/OpenCV/download_VScode_deb.png)
+
+使用 wget 指令後就會看到下方有進度條正在跑
+
+![下載 Vscode.deb 中](Img/OpenCV/download_VScode_deb_ing.png)
+
+在下載一段時間後終端會詢問你是否要加入 MS repo 跟 signing key 以便之後透過 apt 更新 VScode
+
+用方向鍵選到 YES 按下 Enter 就可以了
+
+![詢問加入微軟 repo](Img/OpenCV/)
+
+等到進度條到達 100%
+
+打開 download 資料夾查看有沒有一個 vscode_arm64.deb 的檔案
+
+![查看下載資料夾](Img/OpenCV/check_VScode_deb.png)
+
+檢查完是否有下載成功就可以安裝了
+
+```bash
+sudo apt install ./vscode_arm64.deb
+```
+
+下載後我們點開桌面左下角的 show application
+
+![找到 app 中心](Img/OpenCV/check_show_app.png)
+
+進入 app 中心後往後面的頁面找
+
+應該會找到 VScode 就代表安裝完成了
+
+![找到 VScode](Img/OpenCV/check_VScode.png)
+
+接下來需要安裝注音輸入法
+
+如果使用英文打註解也可以不用安裝
+
+首先先到右上角有關機、網路圖式的地方點一下
+
+跳出一個導覽頁後點擊 setting
+
+![打開設定](Img/OpenCV/setting_opened.png)
+
+在設定頁面左邊的導覽區域往下移動
+
+找到 Region & Language 並點擊
+
+![打開地區和語言](Img/OpenCV/setting_region.png)
+
+在跳出的視窗點選 Manage Installed Languages
+
+點擊後系統會檢查 Language Support 是否可以使用
+
+![檢查 Language Support](Img/OpenCV/region_checking.png)
+
+如果是第一次開啟可能會安裝未完全跳出類似下圖的視窗
+
+點擊 Install 讓系統幫忙補全 Language Support
+
+![未完全安裝](Img/OpenCV/region_checking_not.png)
+
+![補全 Language Support](Img/OpenCV/region_applying.png)
+
+補全 Language Support 後會打開 Language Support 的視窗
+
+檢查一下 Language 的區域有沒有 Chinese(Taiwan)
+
+![檢查語言](Img/OpenCV/region_support.png)
+
+接著回到 setting 的導覽行
+
+找到 鍵盤 (Keyboard) 的設定頁面
+
+![設定鍵盤](Img/OpenCV/keyboard.png)
+
+在輸入來源的地方找到 + 並且點擊
+
+![按下 +](Img/OpenCV/keyboard_apply.png)
+
+再點擊三個點的地方
+
+![按下 ...](Img/OpenCV/keyboard_apply_dot.png)
+
+點擊其他
+
+![按下其他](Img/OpenCV/keyboard_apply_search.png)
+
+在 C 的區域找到 Chinese (新酷音) 點擊右上角的加入
+
+![找到酷](Img/OpenCV/keyboard_apply_cool.png)
+
+加入完回到鍵盤設定的輸入來源檢查有沒有 Chinese (新酷音)
+
+![檢查酷](Img/OpenCV/keyboard_apply_check.png)
+
+確認有加入到就可以使用注音輸入法了
+
+如果需要倉頡或其他的輸入法就到同樣的地方找到想要的輸入來源就可以了
+
+快捷切換 Chinese (新酷音) 跟 English 可以使用 Windows + Space 鍵
+
+但是在 Chinese (新酷音) 下也可以用 Shift 快速切換中英
+
+做好了這些工作就可以開始寫我們的第一個程式碼了
+
+要操作 OpenCV 之前我們需要先測試一下鏡頭
+
+```bash
+ls /dev/video*
+```
+
+![測試鏡頭](Img/OpenCV/check_camera.png)
+
+看到 video0 video1 就回到 VScode
+
+本範例示範如何使用 OpenCV 透過攝影機擷取單張影像
+
+並將影像儲存為圖片檔案
+
+作為後續影像處理與分析的基礎
+
+![3-1程式碼](Img/OpenCV/ex3-1_code.png)
+
+![3-1輸出](Img/OpenCV/ex3-1.png)
+
+本範例示範如何使用 OpenCV 將彩色影像轉換為灰階影像
+
+灰階影像僅保留亮度資訊
+
+不包含色彩資訊
+
+常用於影像分析、邊緣偵測與二值化等前處理步驟
+
+![3-2程式碼](Img/OpenCV/ex3-2_code.png)
+
+![3-2輸出](Img/OpenCV/ex3-2.png)
+
+本範例示範如何將影像轉換為 HSV 色彩空間
+
+並透過設定色彩範圍擷取特定顏色區域
+
+此技術常用於物件偵測、目標追蹤與顏色分割應用
+
+![3-3程式碼](Img/OpenCV/ex3-3_code.png)
+
+![3-3輸出](Img/OpenCV/ex3-3.png)
+
+本範例示範如何將已抽取特定顏色的影像與原始灰階影像進行融合
+
+使目標顏色保留彩色
+
+其餘區域呈現灰階效果
+
+此技術常用於視覺強調（Highlighting）與目標標示應用
+
+![3-4-1程式碼](Img/OpenCV/ex3-4-1_code.png)
+
+![3-4-1輸出](Img/OpenCV/ex3-4-1.png)
+
+本範例在完成「藍色抽取與灰階融合」後
+
+使用 OpenCV 的 putText() 函式
+
+在影像上標示文字 “Blue”
+
+用於說明畫面中被強調的顏色區域
+
+![3-4-2程式碼](Img/OpenCV/ex3-4-2_code.png)
+
+![3-4-2輸出](Img/OpenCV/ex3-4-2.png)
