@@ -31,3 +31,7 @@
 - Add chapter: Installing and Testing the Webcam.
 
 - Add practice: Image processing with OpenCV.
+
+## 2026/03/09
+
+- Added simple optical flow detection.

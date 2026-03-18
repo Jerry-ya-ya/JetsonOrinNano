@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import time
 
-
 CAM_INDEX = 0
 WIDTH = 640
 HEIGHT = 480
@@ -11,7 +10,6 @@ HEIGHT = 480
 DANGER_THRESHOLD = 2.0
 SAMPLE_STRIDE = 8
 COOLDOWN_MS = 500
-
 
 def main():
     cap = cv2.VideoCapture(CAM_INDEX)

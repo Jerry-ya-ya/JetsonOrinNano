@@ -2,12 +2,17 @@ sudo apt install python3.10-venv
 
 cd Waverover
 
-python3 -m venv .venv
+python3 -m venv .venv --system-site-packages
 
 source .venv/bin/activate
 
 pip install --upgrade pip
 
 pip install -r requirements.txt
+
+## Daily
+cd Waverover
+
+source .venv/bin/activate
 
 deactivate
