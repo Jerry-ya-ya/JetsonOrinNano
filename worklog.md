@@ -2,36 +2,40 @@
 
 ## 2026/01/07
 
-- Connect project to remote Git repository.
+- Connected project to remote Git repository.
 
-- Add chapter: Summarize the hardware required for upgrading Jetson.
+- Added chapter: Summarize the hardware required for upgrading Jetson.
 
-- Add chapter: Disk Partitioning.
+- Added chapter: Disk Partitioning.
 
 - Implemented the creation of the table of contents.
 
 ## 2026/01/22
 
-- Add chapter: Dual Boot Setup – Installing Ubuntu alongside Windows.
+- Added chapter: Dual Boot Setup – Installing Ubuntu alongside Windows.
 
-- Update image filenames.
+- Updated image filenames.
 
 ## 2026/01/28
 
-- Add chapter: Upgrade jetson orin nano to maxn super.
+- Added chapter: Upgrade jetson orin nano to maxn super.
 
 ## 2026/02/02
 
-- Add chapter: Use ssh to connect to devices and scp to transfer data.
+- Added chapter: Use ssh to connect to devices and scp to transfer data.
 
 - Fixed an issue where images failed to display on GitHub due to incorrect capitalization in image URLs.
 
-- Add chapter: Installing and Using jtop.
+- Added chapter: Installing and Using jtop.
 
-- Add chapter: Installing and Testing the Webcam.
+- Added chapter: Installing and Testing the Webcam.
 
-- Add practice: Image processing with OpenCV.
+- Added practice: Image processing with OpenCV.
 
 ## 2026/03/09
 
 - Added simple optical flow detection.
+
+## 2026/03/19
+
+- Added a dangerous frame counter; danger is only triggered when it exceeds three consecutive frames.

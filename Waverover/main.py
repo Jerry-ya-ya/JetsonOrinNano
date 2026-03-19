@@ -10,6 +10,8 @@ HEIGHT = 480
 DANGER_THRESHOLD = 2.0
 SAMPLE_STRIDE = 8
 COOLDOWN_MS = 500
+DANGER_FRAMES_REQUIRED = 3
+danger_frame_count = 0
 
 def main():
     cap = cv2.VideoCapture(CAM_INDEX)
@@ -55,14 +57,24 @@ def main():
         max_mag = float(np.max(roi_sampled))
 
         now = time.time()
+
+        # 單幀判斷是否危險
         is_danger = mean_mag >= DANGER_THRESHOLD
 
-        if is_danger and (now - last_danger_ts) * 1000 >= COOLDOWN_MS:
+        if is_danger:
+            danger_frame_count += 1
+        else:
+            danger_frame_count = 0
+        
+        # 連續 3 幀危險，才真的算危險
+        confirmed_danger = danger_frame_count >= DANGER_FRAMES_REQUIRED
+
+        if confirmed_danger and (now - last_danger_ts) * 1000 >= COOLDOWN_MS:
             last_danger_ts = now
             print(f"[DANGER] mean={mean_mag:.3f}, max={max_mag:.3f}")
 
-        status_text = "DANGER" if is_danger else "SAFE"
-        color = (0, 0, 255) if is_danger else (0, 255, 0)
+        status_text = "DANGER" if confirmed_danger else "SAFE"
+        color = (0, 0, 255) if confirmed_danger else (0, 255, 0)
 
         # 畫出 ROI 區域
         x1, y1 = w // 4, h // 2
@@ -72,14 +84,14 @@ def main():
         # 顯示數值
         cv2.putText(
             frame,
-            f"{status_text} mean={mean_mag:.2f} max={max_mag:.2f}",
+            f"{status_text} mean={mean_mag:.2f} max={max_mag:.2f} count={danger_frame_count}",
             (20, 40),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.8,
             color,
             2
         )
-
+        
         cv2.imshow("Optical Flow Collision Guard", frame)
 
         prev_gray = gray
@@ -90,7 +102,6 @@ def main():
 
     cap.release()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
