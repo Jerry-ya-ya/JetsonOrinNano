@@ -39,3 +39,5 @@
 ## 2026/03/19
 
 - Added a dangerous frame counter; danger is only triggered when it exceeds three consecutive frames.
+
+- Added stop function with debounce; trigger on confirmed danger, allow retrigger after safe state, and display stop status.
