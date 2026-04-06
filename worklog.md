@@ -41,3 +41,7 @@
 - Added a dangerous frame counter; danger is only triggered when it exceeds three consecutive frames.
 
 - Added stop function with debounce; trigger on confirmed danger, allow retrigger after safe state, and display stop status.
+
+## 2026/04/07
+
+- Connected the Wave Rover to the Jetson Orin Nano, provided independent power to the Jetson Orin Nano, and modified main.py so that the Jetson Orin Nano can control the Wave Rover via USB.

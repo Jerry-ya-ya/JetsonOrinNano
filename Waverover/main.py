@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
 import time
+import serial
+from pynput import mouse
 
 # 攝影機參數設定
 CAM_INDEX = 0
@@ -16,15 +18,61 @@ COOLDOWN_MS = 500
 DANGER_FRAMES_REQUIRED = 3
 danger_frame_count = 0
 
+SERIAL_PORT = "/dev/ttyUSB0"
+BAUDRATE = 115200
+
 # 狀態鎖避免每一幀都觸發 stop指令
 stop_triggered = False
 
+ser = serial.Serial("/dev/ttyUSB0", 9600)
+
+def on_click(x, y, button, pressed):
+    global ser
+
+    if button == mouse.Button.left:
+        if pressed:
+            send_forward(ser)
+        else:
+            send_stop(ser)
+
+def send_forward(ser):
+    command = '{"T":1,"L":0.5,"R":0.5}'
+    ser.write(command.encode("utf-8") + b"\n")
+    print(">>> FORWARD <<<", command)
+
 # 危險停車函數
-def trigger_stop():
-    print(">>> STOP COMMAND TRIGGERED <<<")
+def trigger_stop(ser):
+    if ser is None:
+        print(">>> STOP COMMAND TRIGGERED <<< but serial is not available")
+        return
+
+    command = '{"T":1,"L":0,"R":0}'
+    ser.write(command.encode("utf-8") + b"\n")
+    print(">>> STOP COMMAND TRIGGERED <<<", command)
+
+def send_stop(ser):
+    command = '{"T":1,"L":0,"R":0}'
+    ser.write(command.encode("utf-8") + b"\n")
+    print(">>> STOP <<<", command)
+
+def init_serial():
+    try:
+        print(f"[INFO] Opening serial port: {SERIAL_PORT} @ {BAUDRATE}")
+        ser = serial.Serial(SERIAL_PORT, baudrate=BAUDRATE, dsrdtr=None)
+        ser.setRTS(False)
+        ser.setDTR(False)
+        return ser
+    except Exception as e:
+        print(f"[ERROR] Failed to open serial port: {e}")
+        return None
 
 # 主要判斷與攝影機開啟函數
 def main():
+    ser = init_serial()
+
+    listener = mouse.Listener(on_click=on_click)
+    listener.start()
+
     cap = cv2.VideoCapture(CAM_INDEX)
 
     if not cap.isOpened():
@@ -88,7 +136,7 @@ def main():
             last_danger_ts = now
 
             print(f"[DANGER] mean={mean_mag:.3f}, max={max_mag:.3f}, count={danger_frame_count}")
-            trigger_stop()
+            trigger_stop(ser)
         
         # 如果不再危險，重置狀態
         if not confirmed_danger:
@@ -138,6 +186,7 @@ def main():
     # 釋放資源
     cap.release()
     cv2.destroyAllWindows()
+    ser.close()
 # 程式入口
 if __name__ == "__main__":
     main()
