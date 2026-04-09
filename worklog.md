@@ -45,3 +45,7 @@
 ## 2026/04/07
 
 - Connected the Wave Rover to the Jetson Orin Nano, provided independent power to the Jetson Orin Nano, and modified main.py so that the Jetson Orin Nano can control the Wave Rover via USB.
+
+## 2026/04/09
+
+- Implemented a simple state machine to track the autonomous vehicle’s state, and enabled mouse input to switch the default stopped state to continuous movement or emergency stop.

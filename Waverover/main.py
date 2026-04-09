@@ -11,71 +11,96 @@ HEIGHT = 480
 
 # 危險門檻設定
 DANGER_THRESHOLD = 2.0
-SAMPLE_STRIDE = 8
-COOLDOWN_MS = 500
+SAMPLE_STRIDE = 6
+COOLDOWN_MS = 5000
 
 # 最大危險幀與危險幀連續數量的設定，避免誤判
 DANGER_FRAMES_REQUIRED = 3
-danger_frame_count = 0
 
 SERIAL_PORT = "/dev/ttyUSB0"
 BAUDRATE = 115200
 
-# 狀態鎖避免每一幀都觸發 stop指令
-stop_triggered = False
+STATE_STOP = 0
+STATE_FORWARD = 1
 
-ser = serial.Serial("/dev/ttyUSB0", 9600)
-
-def on_click(x, y, button, pressed):
-    global ser
-
-    if button == mouse.Button.left:
-        if pressed:
-            send_forward(ser)
-        else:
-            send_stop(ser)
 
 def send_forward(ser):
-    command = '{"T":1,"L":0.5,"R":0.5}'
+    command = '{"T":1,"L":0.2,"R":0.2}'
     ser.write(command.encode("utf-8") + b"\n")
+    ser.flush()
     print(">>> FORWARD <<<", command)
 
-# 危險停車函數
-def trigger_stop(ser):
-    if ser is None:
-        print(">>> STOP COMMAND TRIGGERED <<< but serial is not available")
-        return
-
-    command = '{"T":1,"L":0,"R":0}'
-    ser.write(command.encode("utf-8") + b"\n")
-    print(">>> STOP COMMAND TRIGGERED <<<", command)
 
 def send_stop(ser):
     command = '{"T":1,"L":0,"R":0}'
     ser.write(command.encode("utf-8") + b"\n")
+    ser.flush()
     print(">>> STOP <<<", command)
+
+
+def trigger_stop(ser):
+    if ser is None:
+        print(">>> STOP COMMAND TRIGGERED <<< but serial is not available")
+        return
+    send_stop(ser)
+    print(">>> STOP COMMAND TRIGGERED <<<")
+
 
 def init_serial():
     try:
         print(f"[INFO] Opening serial port: {SERIAL_PORT} @ {BAUDRATE}")
-        ser = serial.Serial(SERIAL_PORT, baudrate=BAUDRATE, dsrdtr=None)
+        ser = serial.Serial(SERIAL_PORT, baudrate=BAUDRATE, timeout=1, dsrdtr=None)
         ser.setRTS(False)
         ser.setDTR(False)
+        time.sleep(0.5)
         return ser
     except Exception as e:
         print(f"[ERROR] Failed to open serial port: {e}")
         return None
 
-# 主要判斷與攝影機開啟函數
+
 def main():
     ser = init_serial()
+    if ser is None:
+        raise RuntimeError("Failed to initialize serial")
+
+    current_state = STATE_STOP
+    danger_frame_count = 0
+    stop_triggered = False
+    last_danger_ts = 0.0
+
+    def toggle_state():
+        nonlocal current_state, stop_triggered
+
+        # 如果目前在危險停止狀態，就先不允許前進
+        if stop_triggered:
+            print("Blocked: danger stop is active")
+            return
+
+        if current_state == STATE_STOP:
+            current_state = STATE_FORWARD
+            send_forward(ser)
+            print("STATE -> FORWARD")
+        else:
+            current_state = STATE_STOP
+            send_stop(ser)
+            print("STATE -> STOP")
+
+    def on_click(x, y, button, pressed):
+        if button == mouse.Button.left and pressed:
+            toggle_state()
 
     listener = mouse.Listener(on_click=on_click)
     listener.start()
 
+    send_stop(ser)
+    print("Initial state: STOP")
+
     cap = cv2.VideoCapture(CAM_INDEX)
 
     if not cap.isOpened():
+        listener.stop()
+        ser.close()
         raise RuntimeError("Cannot open camera")
 
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
@@ -83,11 +108,12 @@ def main():
 
     ret, frame = cap.read()
     if not ret:
+        listener.stop()
+        cap.release()
+        ser.close()
         raise RuntimeError("Failed to read first frame")
 
     prev_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
-    last_danger_ts = 0.0
 
     while True:
         ret, frame = cap.read()
@@ -98,7 +124,6 @@ def main():
 
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        # 計算 dense optical flow
         flow = cv2.calcOpticalFlowFarneback(
             prev_gray, gray, None,
             0.5, 3, 15, 3, 5, 1.2, 0
@@ -107,51 +132,42 @@ def main():
         mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1])
 
         h, w = mag.shape
-
-        # 只看下半部 + 中間區域，較像前方碰撞區
         roi = mag[h // 2:h, w // 4: 3 * w // 4]
         roi_sampled = roi[::SAMPLE_STRIDE, ::SAMPLE_STRIDE]
 
-        # 計算平均與最大光流 magnitude
         mean_mag = float(np.mean(roi_sampled))
         max_mag = float(np.max(roi_sampled))
-
         now = time.time()
 
-        # 單幀判斷是否危險
         is_danger = mean_mag >= DANGER_THRESHOLD
 
-        # 更新連續危險幀計數
         if is_danger:
             danger_frame_count += 1
         else:
             danger_frame_count = 0
-        
-        # 連續 3 幀危險，才真的算危險
+
         confirmed_danger = danger_frame_count >= DANGER_FRAMES_REQUIRED
 
-        # 每次確認危險且冷卻時間過後，觸發停車指令
-        if confirmed_danger and not stop_triggered:
+        if confirmed_danger and not stop_triggered and (now - last_danger_ts) * 1000 >= COOLDOWN_MS:
             stop_triggered = True
             last_danger_ts = now
 
+            # 危險停車時，狀態機也要同步回 STOP
+            current_state = STATE_STOP
+
             print(f"[DANGER] mean={mean_mag:.3f}, max={max_mag:.3f}, count={danger_frame_count}")
             trigger_stop(ser)
-        
-        # 如果不再危險，重置狀態
+
         if not confirmed_danger:
             stop_triggered = False
-        
-        # 狀態文字與顏色設定
+
         status_text = "DANGER" if confirmed_danger else "SAFE"
         color = (0, 0, 255) if confirmed_danger else (0, 255, 0)
 
-        # 畫出 ROI 區域
         x1, y1 = w // 4, h // 2
         x2, y2 = 3 * w // 4, h
         cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
 
-        # 顯示數值
         cv2.putText(
             frame,
             f"{status_text} mean={mean_mag:.2f} max={max_mag:.2f} count={danger_frame_count}",
@@ -161,32 +177,42 @@ def main():
             color,
             2
         )
-        
+
+        state_name = "FORWARD" if current_state == STATE_FORWARD else "STOP"
+        cv2.putText(
+            frame,
+            f"STATE: {state_name}",
+            (20, 80),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.8,
+            (255, 255, 0),
+            2
+        )
+
         if stop_triggered:
             cv2.putText(
                 frame,
-                "STOPPED",
-                (20, 80),
+                "STOPPED BY DANGER",
+                (20, 120),
                 cv2.FONT_HERSHEY_SIMPLEX,
                 0.8,
                 (0, 0, 255),
                 2
             )
 
-        # 顯示結果
         cv2.imshow("Optical Flow Collision Guard", frame)
-        
-        # 更新前一幀灰階圖
+
         prev_gray = gray
 
-        # 檢查退出條件
         key = cv2.waitKey(1) & 0xFF
         if key == 27 or key == ord('q'):
             break
-    # 釋放資源
+
+    listener.stop()
     cap.release()
     cv2.destroyAllWindows()
     ser.close()
-# 程式入口
+
+
 if __name__ == "__main__":
     main()
