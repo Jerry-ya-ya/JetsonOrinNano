@@ -49,3 +49,7 @@
 ## 2026/04/09
 
 - Implemented a simple state machine to track the autonomous vehicle’s state, and enabled mouse input to switch the default stopped state to continuous movement or emergency stop.
+
+## 2026/04/19
+
+- Separated Config and Serial from the main program, and consolidated the test files into a single folder.

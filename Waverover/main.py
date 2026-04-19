@@ -1,42 +1,10 @@
 import cv2
 import numpy as np
 import time
-import serial
 from pynput import mouse
 
-# 攝影機參數設定
-CAM_INDEX = 0
-WIDTH = 640
-HEIGHT = 480
-
-# 危險門檻設定
-DANGER_THRESHOLD = 2.0
-SAMPLE_STRIDE = 6
-COOLDOWN_MS = 5000
-
-# 最大危險幀與危險幀連續數量的設定，避免誤判
-DANGER_FRAMES_REQUIRED = 3
-
-SERIAL_PORT = "/dev/ttyUSB0"
-BAUDRATE = 115200
-
-STATE_STOP = 0
-STATE_FORWARD = 1
-
-
-def send_forward(ser):
-    command = '{"T":1,"L":0.2,"R":0.2}'
-    ser.write(command.encode("utf-8") + b"\n")
-    ser.flush()
-    print(">>> FORWARD <<<", command)
-
-
-def send_stop(ser):
-    command = '{"T":1,"L":0,"R":0}'
-    ser.write(command.encode("utf-8") + b"\n")
-    ser.flush()
-    print(">>> STOP <<<", command)
-
+from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, COOLDOWN_MS, DANGER_FRAMES_REQUIRED, SERIAL_PORT, BAUDRATE, STATE_STOP, STATE_FORWARD
+from motor_serial import init_serial, send_forward, send_stop
 
 def trigger_stop(ser):
     if ser is None:
@@ -44,21 +12,7 @@ def trigger_stop(ser):
         return
     send_stop(ser)
     print(">>> STOP COMMAND TRIGGERED <<<")
-
-
-def init_serial():
-    try:
-        print(f"[INFO] Opening serial port: {SERIAL_PORT} @ {BAUDRATE}")
-        ser = serial.Serial(SERIAL_PORT, baudrate=BAUDRATE, timeout=1, dsrdtr=None)
-        ser.setRTS(False)
-        ser.setDTR(False)
-        time.sleep(0.5)
-        return ser
-    except Exception as e:
-        print(f"[ERROR] Failed to open serial port: {e}")
-        return None
-
-
+    
 def main():
     ser = init_serial()
     if ser is None:
@@ -212,7 +166,6 @@ def main():
     cap.release()
     cv2.destroyAllWindows()
     ser.close()
-
 
 if __name__ == "__main__":
     main()
