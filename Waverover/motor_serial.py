@@ -26,3 +26,10 @@ def send_stop(ser):
     ser.write(command.encode("utf-8") + b"\n")
     ser.flush()
     print(">>> STOP <<<", command)
+
+def trigger_stop(ser):
+    if ser is None:
+        print(">>> STOP COMMAND TRIGGERED <<< but serial is not available")
+        return
+    send_stop(ser)
+    print(">>> STOP COMMAND TRIGGERED <<<")

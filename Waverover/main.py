@@ -3,46 +3,21 @@ import numpy as np
 import time
 from pynput import mouse
 
-from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, COOLDOWN_MS, DANGER_FRAMES_REQUIRED, SERIAL_PORT, BAUDRATE, STATE_STOP, STATE_FORWARD
-from motor_serial import init_serial, send_forward, send_stop
-
-def trigger_stop(ser):
-    if ser is None:
-        print(">>> STOP COMMAND TRIGGERED <<< but serial is not available")
-        return
-    send_stop(ser)
-    print(">>> STOP COMMAND TRIGGERED <<<")
+from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, STATE_FORWARD
+from motor_serial import init_serial, send_stop, send_forward
+from state_controller import CarStateController
     
 def main():
     ser = init_serial()
     if ser is None:
         raise RuntimeError("Failed to initialize serial")
-
-    current_state = STATE_STOP
-    danger_frame_count = 0
-    stop_triggered = False
-    last_danger_ts = 0.0
-
-    def toggle_state():
-        nonlocal current_state, stop_triggered
-
-        # 如果目前在危險停止狀態，就先不允許前進
-        if stop_triggered:
-            print("Blocked: danger stop is active")
-            return
-
-        if current_state == STATE_STOP:
-            current_state = STATE_FORWARD
-            send_forward(ser)
-            print("STATE -> FORWARD")
-        else:
-            current_state = STATE_STOP
-            send_stop(ser)
-            print("STATE -> STOP")
-
+    
+    controller = CarStateController()
+    
     def on_click(x, y, button, pressed):
         if button == mouse.Button.left and pressed:
-            toggle_state()
+            print("Mouse clicked, attempting to toggle state")
+            controller.toggle_state(send_forward, send_stop, ser)
 
     listener = mouse.Listener(on_click=on_click)
     listener.start()
@@ -56,7 +31,7 @@ def main():
         listener.stop()
         ser.close()
         raise RuntimeError("Cannot open camera")
-
+    
     cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
 
@@ -66,7 +41,7 @@ def main():
         cap.release()
         ser.close()
         raise RuntimeError("Failed to read first frame")
-
+    
     prev_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     while True:
@@ -95,25 +70,7 @@ def main():
 
         is_danger = mean_mag >= DANGER_THRESHOLD
 
-        if is_danger:
-            danger_frame_count += 1
-        else:
-            danger_frame_count = 0
-
-        confirmed_danger = danger_frame_count >= DANGER_FRAMES_REQUIRED
-
-        if confirmed_danger and not stop_triggered and (now - last_danger_ts) * 1000 >= COOLDOWN_MS:
-            stop_triggered = True
-            last_danger_ts = now
-
-            # 危險停車時，狀態機也要同步回 STOP
-            current_state = STATE_STOP
-
-            print(f"[DANGER] mean={mean_mag:.3f}, max={max_mag:.3f}, count={danger_frame_count}")
-            trigger_stop(ser)
-
-        if not confirmed_danger:
-            stop_triggered = False
+        confirmed_danger = controller.update_danger(is_danger, now, mean_mag, max_mag, send_stop, ser)
 
         status_text = "DANGER" if confirmed_danger else "SAFE"
         color = (0, 0, 255) if confirmed_danger else (0, 255, 0)
@@ -124,7 +81,7 @@ def main():
 
         cv2.putText(
             frame,
-            f"{status_text} mean={mean_mag:.2f} max={max_mag:.2f} count={danger_frame_count}",
+            f"{status_text} mean={mean_mag:.2f} max={max_mag:.2f} count={controller.danger_frame_count}",
             (20, 40),
             cv2.FONT_HERSHEY_SIMPLEX,
             0.8,
@@ -132,7 +89,7 @@ def main():
             2
         )
 
-        state_name = "FORWARD" if current_state == STATE_FORWARD else "STOP"
+        state_name = "FORWARD" if controller.current_state == STATE_FORWARD else "STOP"
         cv2.putText(
             frame,
             f"STATE: {state_name}",
@@ -143,7 +100,7 @@ def main():
             2
         )
 
-        if stop_triggered:
+        if controller.stop_triggered:
             cv2.putText(
                 frame,
                 "STOPPED BY DANGER",
@@ -159,7 +116,10 @@ def main():
         prev_gray = gray
 
         key = cv2.waitKey(1) & 0xFF
-        if key == 27 or key == ord('q'):
+        if key == ord('t'):
+            print("Key 't' pressed, attempting to toggle state")
+            controller.toggle_state(send_forward, send_stop, ser)
+        elif key == 27 or key == ord('q'):
             break
 
     listener.stop()

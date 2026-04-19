@@ -53,3 +53,5 @@
 ## 2026/04/19
 
 - Separated Config and Serial from the main program, and consolidated the test files into a single folder.
+
+- Separated State controller and Motor serial from the main program.
