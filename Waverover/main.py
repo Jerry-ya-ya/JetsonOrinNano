@@ -1,11 +1,11 @@
 import cv2
 import numpy as np
 import time
-from pynput import mouse
 
 from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, STATE_FORWARD
 from motor_serial import init_serial, send_stop, send_forward
 from state_controller import CarStateController
+from mouse_listener import create_mouse_listener
     
 def main():
     ser = init_serial()
@@ -13,13 +13,8 @@ def main():
         raise RuntimeError("Failed to initialize serial")
     
     controller = CarStateController()
-    
-    def on_click(x, y, button, pressed):
-        if button == mouse.Button.left and pressed:
-            print("Mouse clicked, attempting to toggle state")
-            controller.toggle_state(send_forward, send_stop, ser)
 
-    listener = mouse.Listener(on_click=on_click)
+    listener = create_mouse_listener(controller, send_forward, send_stop, ser)
     listener.start()
 
     send_stop(ser)
