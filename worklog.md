@@ -59,3 +59,7 @@
 ## 2026/04/19
 
 - Refactored mouse_listener.py so that it is only responsible for setting up mouse listening, instead of creating the controller and serial object by itself; the actual state and hardware instances should be created in main.py and then passed in.
+
+## 2026/04/22
+
+- Added content for the first-week workshop.
