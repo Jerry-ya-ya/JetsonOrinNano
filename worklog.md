@@ -63,3 +63,5 @@
 ## 2026/04/22
 
 - Added content for the first-week workshop.
+
+- Removed duplicate content from the first-week workshop
