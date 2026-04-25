@@ -65,3 +65,7 @@
 - Added content for the first-week workshop.
 
 - Removed duplicate content from the first-week workshop
+
+## 2026/04/26
+
+- Added keyboard input listening to enable manual control of the Wave Rover.

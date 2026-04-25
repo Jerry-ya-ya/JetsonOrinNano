@@ -2,6 +2,7 @@ import time
 import serial
 
 from config import SERIAL_PORT, BAUDRATE
+from pynput import keyboard
 
 def init_serial():
     try:
@@ -15,17 +16,24 @@ def init_serial():
         print(f"[ERROR] Failed to open serial port: {e}")
         return None
 
-def send_forward(ser):
-    command = '{"T":1,"L":0.2,"R":0.2}'
+def send_drive(ser, left, right):
+    if ser is None:
+        print("Serial is not available")
+        return
+
+    left = max(-0.5, min(0.5, left))
+    right = max(-0.5, min(0.5, right))
+
+    command = f'{{"T":1,"L":{left:.2f},"R":{right:.2f}}}'
     ser.write(command.encode("utf-8") + b"\n")
     ser.flush()
-    print(">>> FORWARD <<<", command)
+    print(">>> DRIVE <<<", command)
+
+def send_forward(ser):
+    send_drive(ser, 0.2, 0.2)
 
 def send_stop(ser):
-    command = '{"T":1,"L":0,"R":0}'
-    ser.write(command.encode("utf-8") + b"\n")
-    ser.flush()
-    print(">>> STOP <<<", command)
+    send_drive(ser, 0, 0)
 
 def trigger_stop(ser):
     if ser is None:
@@ -33,3 +41,21 @@ def trigger_stop(ser):
         return
     send_stop(ser)
     print(">>> STOP COMMAND TRIGGERED <<<")
+
+def get_keyboard_drive(keyboard_controller):
+    speed = 0.35
+    turn_speed = 0.3
+
+    if keyboard_controller.is_pressed(keyboard.Key.w):
+        return speed, speed
+
+    if keyboard_controller.is_pressed(keyboard.Key.s):
+        return -speed, -speed
+
+    if keyboard_controller.is_pressed(keyboard.Key.a):
+        return -turn_speed, turn_speed
+
+    if keyboard_controller.is_pressed(keyboard.Key.d):
+        return turn_speed, -turn_speed
+
+    return 0, 0

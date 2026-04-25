@@ -1,12 +1,14 @@
 import cv2
 import numpy as np
 import time
+import pynput.keyboard as keyboard
 
-from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, STATE_FORWARD
-from motor_serial import init_serial, send_stop, send_forward
+from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, STATE_FORWARD, STATE_KEYBOARD_MANUAL
+from motor_serial import init_serial, send_stop, send_forward, send_drive
 from state_controller import CarStateController
 from mouse_listener import create_mouse_listener
-    
+from keyboard_listener import create_keyboard_listener
+
 def main():
     ser = init_serial()
     if ser is None:
@@ -14,8 +16,11 @@ def main():
     
     controller = CarStateController()
 
-    listener = create_mouse_listener(controller, send_forward, send_stop, ser)
-    listener.start()
+    mouse_listener = create_mouse_listener(controller, send_forward, send_stop, ser)
+    mouse_listener.start()
+
+    keyboard_listener = create_keyboard_listener(controller)
+    keyboard_listener.start()
 
     send_stop(ser)
     print("Initial state: STOP")
@@ -23,7 +28,8 @@ def main():
     cap = cv2.VideoCapture(CAM_INDEX)
 
     if not cap.isOpened():
-        listener.stop()
+        mouse_listener.stop()
+        keyboard_listener.stop()
         ser.close()
         raise RuntimeError("Cannot open camera")
     
@@ -32,7 +38,8 @@ def main():
 
     ret, frame = cap.read()
     if not ret:
-        listener.stop()
+        mouse_listener.stop()
+        keyboard_listener.stop()
         cap.release()
         ser.close()
         raise RuntimeError("Failed to read first frame")
@@ -67,7 +74,12 @@ def main():
 
         confirmed_danger = controller.update_danger(is_danger, now, mean_mag, max_mag, send_stop, ser)
 
-        status_text = "DANGER" if confirmed_danger else "SAFE"
+        status_text = "SAFE"
+
+        if controller.current_state == STATE_KEYBOARD_MANUAL and not controller.stop_triggered:
+            send_drive(ser, controller.manual_left, controller.manual_right)
+            status_text = "DANGER" if confirmed_danger else "SAFE"
+        
         color = (0, 0, 255) if confirmed_danger else (0, 255, 0)
 
         x1, y1 = w // 4, h // 2
@@ -117,7 +129,9 @@ def main():
         elif key == 27 or key == ord('q'):
             break
 
-    listener.stop()
+    mouse_listener.stop()
+    keyboard_listener.stop()
+
     cap.release()
     cv2.destroyAllWindows()
     ser.close()
