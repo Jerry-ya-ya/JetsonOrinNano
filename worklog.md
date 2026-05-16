@@ -69,3 +69,7 @@
 ## 2026/04/26
 
 - Added keyboard input listening to enable manual control of the Wave Rover.
+
+## 2026/05/16
+
+- Add low-speed motor compensation and change AI mode trigger from left-click to right-click.

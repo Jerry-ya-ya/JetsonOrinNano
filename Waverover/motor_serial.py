@@ -4,6 +4,8 @@ import serial
 from config import SERIAL_PORT, BAUDRATE
 from pynput import keyboard
 
+from config import TURN_DEADZONE
+
 def init_serial():
     try:
         print(f"[INFO] Opening serial port: {SERIAL_PORT} @ {BAUDRATE}")
@@ -21,13 +23,22 @@ def send_drive(ser, left, right):
         print("Serial is not available")
         return
 
-    left = max(-0.5, min(0.5, left))
-    right = max(-0.5, min(0.5, right))
+    left = apply_deadzone_compensation(left, TURN_DEADZONE)
+    right = apply_deadzone_compensation(right, TURN_DEADZONE)
 
     command = f'{{"T":1,"L":{left:.2f},"R":{right:.2f}}}'
     ser.write(command.encode("utf-8") + b"\n")
     ser.flush()
     print(">>> DRIVE <<<", command)
+
+def apply_deadzone_compensation(value, deadzone):
+    if value == 0:
+        return 0
+
+    if value > 0:
+        return deadzone + value * (0.5 - deadzone) / 0.5
+
+    return -deadzone + value * (0.5 - deadzone) / 0.5
 
 def send_forward(ser):
     send_drive(ser, 0.2, 0.2)

@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 import time
 import pynput.keyboard as keyboard
+import config
 
-from config import CAM_INDEX, WIDTH, HEIGHT, DANGER_THRESHOLD, SAMPLE_STRIDE, STATE_FORWARD, STATE_KEYBOARD_MANUAL
 from motor_serial import init_serial, send_stop, send_forward, send_drive
 from state_controller import CarStateController
 from mouse_listener import create_mouse_listener
@@ -25,7 +25,7 @@ def main():
     send_stop(ser)
     print("Initial state: STOP")
 
-    cap = cv2.VideoCapture(CAM_INDEX)
+    cap = cv2.VideoCapture(config.CAM_INDEX)
 
     if not cap.isOpened():
         mouse_listener.stop()
@@ -33,8 +33,8 @@ def main():
         ser.close()
         raise RuntimeError("Cannot open camera")
     
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, WIDTH)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, HEIGHT)
+    cap.set(cv2.CAP_PROP_FRAME_WIDTH, config.WIDTH)
+    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, config.HEIGHT)
 
     ret, frame = cap.read()
     if not ret:
@@ -45,6 +45,11 @@ def main():
         raise RuntimeError("Failed to read first frame")
     
     prev_gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    last_manual_send_time = 0.0
+
+    last_left = None
+    last_right = None
 
     while True:
         ret, frame = cap.read()
@@ -64,21 +69,32 @@ def main():
 
         h, w = mag.shape
         roi = mag[h // 2:h, w // 4: 3 * w // 4]
-        roi_sampled = roi[::SAMPLE_STRIDE, ::SAMPLE_STRIDE]
+        roi_sampled = roi[::config.SAMPLE_STRIDE, ::config.SAMPLE_STRIDE]
 
         mean_mag = float(np.mean(roi_sampled))
         max_mag = float(np.max(roi_sampled))
         now = time.time()
 
-        is_danger = mean_mag >= DANGER_THRESHOLD
+        is_danger = mean_mag >= config.DANGER_THRESHOLD
 
         confirmed_danger = controller.update_danger(is_danger, now, mean_mag, max_mag, send_stop, ser)
 
         status_text = "SAFE"
 
-        if controller.current_state == STATE_KEYBOARD_MANUAL and not controller.stop_triggered:
-            send_drive(ser, controller.manual_left, controller.manual_right)
-            status_text = "DANGER" if confirmed_danger else "SAFE"
+        now = time.time()
+
+        if controller.current_state == config.STATE_KEYBOARD_MANUAL and not controller.stop_triggered:
+            left = controller.manual_left
+            right = controller.manual_right
+
+            changed = (left != last_left) or (right != last_right)
+            timeout = (now - last_manual_send_time >= config.MANUAL_SEND_INTERVAL)
+
+            if changed or timeout:
+                send_drive(ser, left, right)
+                last_manual_send_time = now
+                last_left = left
+                last_right = right
         
         color = (0, 0, 255) if confirmed_danger else (0, 255, 0)
 
@@ -96,7 +112,7 @@ def main():
             2
         )
 
-        state_name = "FORWARD" if controller.current_state == STATE_FORWARD else "STOP"
+        state_name = "FORWARD" if controller.current_state == config.STATE_FORWARD else "STOP"
         cv2.putText(
             frame,
             f"STATE: {state_name}",
