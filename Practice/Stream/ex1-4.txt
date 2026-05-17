@@ -1,0 +1,24 @@
+# 邊緣偵測
+
+while True:
+    # 使用 Canny 演算法進行邊緣偵測
+    # frame:
+    #   原始影像
+    # 100:
+    #   下限閾值(lower threshold)
+    # 200:
+    #   上限閾值(upper threshold)
+    # Canny 的原理：
+    # 會找出影像中亮度變化很大的地方
+    # 通常就是物體邊界
+
+    # 邊緣會顯示成白色
+    # 非邊緣區域會變成黑色
+    edge = cv2.Canny(frame, 100, 200)
+
+    # 顯示邊緣偵測結果
+    # "Edge":
+    #   視窗名稱
+    # edge:
+    #   經過 Canny 處理後的影像
+    cv2.imshow("Edge", edge)

@@ -1,0 +1,59 @@
+# 抽色(藍色)
+
+# 匯入 numpy 套件
+# numpy 主要用來處理陣列與數值運算
+# 在影像處理中，影像本身其實也是矩陣(array)
+import numpy as np
+
+# while True:
+    # 將影像從 BGR 色彩空間轉成 HSV 色彩空間
+    # frame:
+    #   原本攝影機讀到的彩色影像
+    # cv2.COLOR_BGR2HSV:
+    #   表示 BGR → HSV
+    # HSV:
+    #   H = Hue（色相）
+    #   S = Saturation（飽和度）
+    #   V = Value（亮度）
+    # HSV 在顏色辨識上比 BGR 更方便
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+
+    # 設定藍色範圍的「下限」，建立一個 numpy 陣列，小於這個值的顏色不會被偵測
+    lower_blue = np.array([100, 100, 100])
+    upper_blue = np.array([130, 255, 255])
+
+    # 建立遮罩(mask)
+
+    # cv2.inRange()
+    # 用來檢查影像中的像素
+    # 如果像素顏色介於：
+    # lower_blue ~ upper_blue
+    # 就會變成白色(255)
+    # 不符合範圍的部分
+    # 會變成黑色(0)
+    # 最後得到的是一張黑白圖片
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+
+    # 套用遮罩(mask)
+    #
+    # bitwise_and()
+    # 會把符合 mask 的地方保留下來
+    # frame, frame:
+    #   原始影像
+    # mask=mask:
+    #   只保留白色區域
+    # 所以最後：
+    # 藍色物體會保留
+    # 其他顏色會變黑
+    result = cv2.bitwise_and(frame, frame, mask=mask)
+
+    # 顯示遮罩畫面
+    # mask 是黑白圖：
+    # 白色 = 偵測到藍色
+    # 黑色 = 非藍色
+    cv2.imshow("Mask", mask)
+
+    # 顯示最後結果
+    # 只會看到藍色物體
+    # 其他部分會被移除
+    cv2.imshow("Blue", result)

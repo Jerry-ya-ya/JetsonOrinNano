@@ -64,7 +64,7 @@
 
 - Added content for the first-week workshop.
 
-- Removed duplicate content from the first-week workshop
+- Removed duplicate content from the 20260427 workshop.
 
 ## 2026/04/26
 
@@ -73,3 +73,7 @@
 ## 2026/05/16
 
 - Add low-speed motor compensation and change AI mode trigger from left-click to right-click.
+
+## 2026/05/18
+
+- Added content for the 20260518 workshop.

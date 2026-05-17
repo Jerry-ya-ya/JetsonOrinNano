@@ -1,0 +1,23 @@
+    # 即時灰階處理
+
+    # 將彩色影像轉成灰階影像
+    # cvtColor() = color convert（顏色轉換）
+    # frame:
+    #   原本的彩色畫面
+    # cv2.COLOR_BGR2GRAY:
+    #   表示從 BGR 彩色格式轉成灰階
+    # OpenCV 預設顏色順序是 BGR
+    # 不是一般常見的 RGB
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+    # 顯示灰階畫面
+    # "Gray":
+    #   視窗名稱
+    # gray:
+    #   要顯示的灰階影像
+    cv2.imshow("Gray", gray)    #   原本的彩色畫面
+    # cv2.COLOR_BGR2GRAY:
+    #   表示從 BGR 彩色格式轉成灰階
+    # OpenCV 預設顏色順序是 BGR
+    # 不是一般常見的 RGB
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
