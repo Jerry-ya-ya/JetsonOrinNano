@@ -77,3 +77,7 @@
 ## 2026/05/18
 
 - Added content for the 20260518 workshop.
+
+## 2026/05/29
+
+- Connected the VL53L0X to the Jetson and created a test program.
