@@ -81,3 +81,7 @@
 ## 2026/05/29
 
 - Connected the VL53L0X to the Jetson and created a test program.
+
+## 2026/08/13
+
+- Enable UPS battery monitoring via Waveshare I2C alongside VL53L0X.
